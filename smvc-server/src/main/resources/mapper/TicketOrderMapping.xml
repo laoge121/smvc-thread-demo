@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.springapp.ticket.dao.TicketOrderMapper">
+    <select id="queryTicketOrderByTrainNo" parameterType="com.yn.springapp.ticket.pojo.TicketOrderPojo"
+            resultType="com.yn.springapp.ticket.pojo.TicketOrderPojo">
+        select id,bookId,orderNo,money,status from ticketorder t where t.orderNo=#{orderNo}
+    </select>
+
+    <insert id="saveTicketOrderInfo" parameterType="com.yn.springapp.ticket.pojo.TicketOrderPojo">
+        INSERT INTO ticketOrder  (bookId,orderNo,money,status) values(#{bookId},#{trainNo},#{money},#{status})
+    </insert>
+
+</mapper>

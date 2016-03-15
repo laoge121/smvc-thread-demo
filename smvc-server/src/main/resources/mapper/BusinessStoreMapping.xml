@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.springapp.store.dao.BusinessStoreMapper">
+    <select id="queryBusinessStore" parameterType="com.yn.springapp.store.pojo.BusinessStorePojo"
+            resultType="com.yn.springapp.store.pojo.BusinessStorePojo">
+      SELECT t.`bsid`,t.`bsname`,t.`nickname`,t.`idcard`,t.`phone`,t.`mobile`,t.`address`,t.`province`,t.`city`,t.`county` FROM business_store t
+    </select>
+
+    <insert id="saveUserInfo" parameterType="com.yn.springapp.store.pojo.BusinessStorePojo">
+        INSERT INTO business_store  (bsname,nickname,idcard,phone,mobile,address,province,city,county) values(${bsname},${nickname},${idcard},${phone},${mobile},${address},${province},${city},${county})
+    </insert>
+
+
+</mapper>

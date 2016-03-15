@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.springapp.admin.dao.MenusMapper">
+    <select id="queryMenus" parameterType="com.yn.springapp.admin.pojo.MenusPojo"
+            resultType="com.yn.springapp.admin.pojo.MenusPojo">
+        SELECT t.`id`,t.`menuid`,t.`menuname`,t.`parentid`,t.`menuurl`,t.`desc`,t.`mstatus`,t.`sort` FROM menus t where t.mstatus=0 ORDER BY t.`parentid`,t.`sort` ASC
+    </select>
+
+</mapper>

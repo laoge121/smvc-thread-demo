@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.springapp.ticket.dao.BookTicketMapper">
+    <select id="queryBookTicketByTrainNo" parameterType="com.yn.springapp.ticket.pojo.BookTicketPojo"
+            resultType="com.yn.springapp.ticket.pojo.BookTicketPojo">
+        select id,orderNo,trainNo,passengers,idCard,money from bookticket t where t.orderNo=#{orderNo}
+        <if test="trainNo!=null and ''!=trainNo">
+            and t.trainNo=#{trainNo}
+        </if>
+        <if test="idCard!=null and ''!=idCard">
+            and t.idCard=#{idCard}
+        </if>
+        <if test="passengers!=null and ''!=passengers">
+            and t.passengers=#{passengers}
+        </if>
+    </select>
+
+    <insert id="saveBookTicketInfo" parameterType="com.yn.springapp.ticket.pojo.BookTicketPojo">
+        INSERT INTO bookticket  (orderNo,trainNo,passengers,idCard,money) values(#{orderNo},#{trainNo},#{passengers},#{idCard},#{money})
+    </insert>
+
+</mapper>

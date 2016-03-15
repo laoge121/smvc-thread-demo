@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.springapp.admin.dao.GoodsMapper">
+    <select id="queryGoodsInfo" parameterType="com.yn.springapp.admin.pojo.GoodsPojo"
+            resultType="com.yn.springapp.admin.pojo.GoodsPojo">
+        SELECT t.`gid`,t.`gname`,t.`price`,t.`gnum`,t.`gdesc`,t.`gsdesc` FROM goods t;
+    </select>
+
+</mapper>

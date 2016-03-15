@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	 http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+     http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd">
+
+    <bean name="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://localhost:61616"></property>
+    </bean>
+
+    <bean name="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+        <property name="connectionFactory" ref="activeMQConnectionFactory"></property>
+        <property name="maxConnections" value="10"></property>
+    </bean>
+
+    <bean name="connectionFactory" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory" ref="pooledConnectionFactory"></property>
+    </bean>
+
+    <!-- 定义消息发送类型 -->
+    <!-- 点对点 -->
+    <bean name="activeMQQueue" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg>
+            <value>queue</value>
+        </constructor-arg>
+    </bean>
+
+    <!-- 1对多 -->
+    <bean name="activeMQTopic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg>
+            <value>topic</value>
+        </constructor-arg>
+    </bean>
+
+    <!-- 消息发送方 -->
+    <bean name="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="connectionFactory"></property>
+        <property name="defaultDestination" ref="activeMQTopic"></property>
+    </bean>
+
+    <bean name="producerService" class="com.yn.springapp.jms.producer.ProducerServiceImpl">
+        <property name="jmsTemplate" ref="jmsTemplate"></property>
+    </bean>
+
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="destinationName" value="awareMessageCallback"></property>
+        <property name="connectionFactory" ref="connectionFactory"></property>
+        <property name="messageListener" ref="producerService"></property>
+    </bean>
+
+
+    <!-- 消费方 消费消息 -->
+    <bean name="customerListener" class="com.yn.springapp.jms.customer.CustomerListener"/>
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"></property>
+        <property name="messageListener" ref="customerListener"></property>
+        <property name="destination" ref="activeMQQueue"></property>
+    </bean>
+
+
+    <!-- 收到消息接着发送消息到对方 -->
+    <bean name="customerSessionWareMessageListener" class="com.yn.springapp.jms.customer.CustomerSessionWareMessageListener"></bean>
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"></property>
+        <property name="destinationName" value="awareMessage"></property>
+        <property name="messageListener" ref="customerSessionWareMessageListener"></property>
+    </bean>
+
+    <!-- adapter 监听设置默认返回 -->
+    <bean name="responseMessageAdapter" class="org.springframework.jms.listener.adapter.MessageListenerAdapter">
+        <property name="delegate">
+            <bean class="com.yn.springapp.jms.customer.CustomerMessageListenerAdapter"></bean>
+        </property>
+        <property name="defaultListenerMethod" value="executeMessage"></property>
+        <property name="defaultResponseQueueName" value="responseMessage"></property>
+    </bean>
+
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"></property>
+        <property name="destinationName" value="adapterMessage"></property>
+        <property name="messageListener" ref="responseMessageAdapter"></property>
+    </bean>
+<!--
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="destinationName" value="responseMessage"></property>
+        <property name="connectionFactory" ref="connectionFactory"></property>
+        <property name="messageListener" ref="producerService"></property>
+        <property name="transactionManager" ref="jtaTransactionManager"></property>
+        <property name="sessionTransacted" value="true"></property>
+    </bean>
+    <bean name="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <jee:jndi-lookup id="dataSource" jndi-name="jndi/mybatis"></jee:jndi-lookup>
+
+    <bean name="jtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"/>
+
+    <tx:annotation-driven transaction-manager="jtaTransactionManager"></tx:annotation-driven>
+    -->
+</beans>

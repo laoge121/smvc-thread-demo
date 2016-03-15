@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	 http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+    <context:component-scan base-package="com.yn.springapp.*" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+  <!--  <mvc:annotation-driven/> -->
+
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                    <property name="supportedMediaTypes" value="application/json;charset=UTF-8"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/test/*"/>
+            <bean class="com.yn.springapp.util.interceptor.ParamInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <bean id="velocityConfigurer" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        <!-- 配置模板引擎的路径 -->
+        <property name="resourceLoaderPath">
+            <value>/WEB-INF/pages/</value>
+        </property>
+        <!-- Velocity属性配置 -->
+        <property name="velocityProperties">
+            <props>
+                <!-- 指定模板引擎的输入输出编码 -->
+                <prop key="input.encoding">UTF-8</prop>
+                <prop key="output.encoding">UTF-8</prop>
+                <!-- 指定输出流的编码 -->
+                <prop key="contentType">text/html;charset=UTF-8</prop>
+                <!-- contentType -->
+                <prop key="velocimacro.library.autoreload">true</prop>
+                <prop key="directive.set.null.allowed">true</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="velocityViewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+        <!--缓存模板 -->
+        <property name="cache" value="false"/>
+        <property name="suffix" value=".jsp"/>
+        <property name="contentType" value="text/html;charset=UTF-8"/>
+        <property name="exposeSpringMacroHelpers" value="true"/>
+        <!--开放request属性 -->
+        <property name="exposeRequestAttributes" value="true"/>
+        <property name="requestContextAttribute" value="rc"/>
+    </bean>
+
+    <!-- 静态资源过滤 -->
+    <mvc:resources location="/" mapping="/*.htm"/>
+    <mvc:resources location="/" mapping="/*.css"/>
+    <mvc:resources location="/" mapping="/*.js"/>
+    <mvc:resources location="/" mapping="/stylesheet/*.css"/>
+    <mvc:resources location="/" mapping="/scripts/*.js"/>
+    <mvc:resources location="/" mapping="/*.jpeg"/>
+    <mvc:resources location="/" mapping="/*.jpg"/>
+    <mvc:resources location="/" mapping="/*.png"/>
+    <mvc:resources location="/" mapping="/*.icon"/>
+
+</beans>

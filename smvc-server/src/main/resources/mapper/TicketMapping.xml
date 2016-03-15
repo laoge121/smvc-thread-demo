@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yn.springapp.ticket.dao.TicketMapper">
+    <select id="queryTicketByTrainNo" parameterType="com.yn.springapp.ticket.pojo.TicketPojo"
+            resultType="com.yn.springapp.ticket.pojo.TicketPojo">
+        select id,trainNo,startStation,endStation,departureTime,money,ticketNum from ticket t where t.trainNo=#{trainNo}
+        <if test="startStation!=null and ''!=startStation">
+            and t.startStation=#{startStation}
+        </if>
+        <if test="endStation!=null and ''!=endStation">
+            and t.endStation=#{endStation}
+        </if>
+        <if test="departureTime!=null and ''!=departureTime">
+            and DATE_FORMAT(t.`departureTime`,'%Y-%m-%d')=DATE_FORMAT(#{departureTime},'%Y-%m-%d')
+        </if>
+    </select>
+
+    <insert id="saveTicketInfo" parameterType="com.yn.springapp.ticket.pojo.TicketPojo">
+        INSERT INTO ticket  (trainNo,startStation,endStation,departureTime,money,ticketNum) values(#{trainNo},#{startStation},#{endStation},#{departureTime},#{money},#{ticketNum})
+    </insert>
+
+    <update id="updateTikcetInfo" parameterType="com.yn.springapp.ticket.pojo.TicketPojo">
+        update ticket t set ticketNum=#{ticketNum} where t.trainNo=#{trainNo}
+        <if test="startStation!=null and ''!=startStation">
+            and t.startStation=#{startStation}
+        </if>
+        <if test="endStation!=null and ''!=endStation">
+            and t.endStation=#{endStation}
+        </if>
+        <if test="departureTime!=null and ''!=departureTime">
+            and DATE_FORMAT(t.`departureTime`,'%Y-%m-%d')=DATE_FORMAT(#{departureTime},'%Y-%m-%d')
+        </if>
+    </update>
+</mapper>
