@@ -12,6 +12,7 @@ import org.apache.curator.utils.CloseableUtils;
 import org.apache.zookeeper.CreateMode;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 
 /**
  * Path Cache用来监控一个ZNode的子节点. 当一个子节点增加， 更新，删除时，
@@ -33,7 +34,9 @@ public class PathCacheExample {
 
     private PathChildrenCache pathChildrenCache = null;
 
-    private CountDownLatch countDownLatch = new CountDownLatch(1);
+    //private CountDownLatch countDownLatch = new CountDownLatch(1);
+
+    private Semaphore semaphore = new Semaphore(0,true);
 
     private String path = "/pathCache";
 
@@ -48,14 +51,20 @@ public class PathCacheExample {
             public void stateChanged(CuratorFramework client, ConnectionState newState) {
                 if (newState.isConnected()) {
                     System.out.println("client connected success!");
-                    countDownLatch.countDown();
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    //countDownLatch.countDown();
+                    semaphore.release();
                 }
             }
         });
 
         client.start();
-
-        countDownLatch.await();
+        semaphore.acquire();
+       // countDownLatch.await();
 
         pathChildrenCache = new PathChildrenCache(client, path, true);
         this.addListener(pathChildrenCache);
@@ -113,7 +122,7 @@ public class PathCacheExample {
 
     public static void main(String[] args) throws Exception {
 
-        PathCacheExample pathCacheExample = new PathCacheExample("********:*****");
+        PathCacheExample pathCacheExample = new PathCacheExample("*******:****");
 
         CuratorFramework client = pathCacheExample.getClient();
 
