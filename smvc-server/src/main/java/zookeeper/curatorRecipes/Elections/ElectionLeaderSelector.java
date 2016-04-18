@@ -6,6 +6,7 @@ import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -16,19 +17,39 @@ public class ElectionLeaderSelector extends LeaderSelectorListenerAdapter implem
 
     private String name;
 
-    private static LeaderSelector leaderSelector = null;
+    private LeaderSelector leaderSelector = null;
+
+    private Semaphore semaphore = new Semaphore(0);
 
     private final String path = "/test";
 
+    private int num = 0;
 
-    public ElectionLeaderSelector(String name, CuratorFramework curatorFramework) {
+    public ElectionLeaderSelector(int id, String name, CuratorFramework curatorFramework) {
+        this.num = id;
         this.name = name;
         leaderSelector = new LeaderSelector(curatorFramework, path, this);
         leaderSelector.autoRequeue();
     }
 
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
+    }
+
     public void start() throws IOException {
         leaderSelector.start();
+    }
+
+    public Semaphore getSemaphore() {
+        return semaphore;
+    }
+
+    public void setSemaphore(Semaphore semaphore) {
+        this.semaphore = semaphore;
     }
 
     @Override
@@ -36,15 +57,30 @@ public class ElectionLeaderSelector extends LeaderSelectorListenerAdapter implem
         leaderSelector.close();
     }
 
+    public LeaderSelector getLeaderSelector() {
+        return leaderSelector;
+    }
+
+    public void setLeaderSelector(LeaderSelector leaderSelector) {
+        this.leaderSelector = leaderSelector;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public void takeLeadership(CuratorFramework client) throws Exception {
         System.out.println(this.name + "当前clent 是 leader!");
-        int waitSeconds = (int) (5 * Math.random()) + 1;
         try {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(waitSeconds));
-
+            semaphore.acquire();
         } catch (Exception e) {
-            Thread.currentThread().interrupt();
+            semaphore.release();
+            //Thread.currentThread().interrupt();
         } finally {
             System.out.println(this.name + "让出领导权！");
         }
