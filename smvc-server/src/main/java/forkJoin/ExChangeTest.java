@@ -21,6 +21,7 @@ public class ExChangeTest {
                 Map<String, Object> tmp = Maps.newHashMap();
                 tmp.put("aa", ">>>>>>>>>>>>>>>>>one thread");
                 try {
+                    System.out.println(">>>>>>>>1>>>>>>> 准备数据");
                     tmp = exchanger.exchange(tmp);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -35,6 +36,7 @@ public class ExChangeTest {
                 Map<String, Object> tmp = Maps.newHashMap();
                 tmp.put("bb", ">>>>>>>>>>>>>>>>>two thread");
                 try {
+                    System.out.println(">>>>>>>>2>>>>>>> 准备数据");
                     tmp = exchanger.exchange(tmp);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
