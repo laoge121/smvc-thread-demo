@@ -39,6 +39,7 @@ public class CyclicBarrierTest {
             System.out.println("I am ok !");
             try {
                 cyclicBarraier.await();
+                System.out.println("<<<");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (BrokenBarrierException e) {

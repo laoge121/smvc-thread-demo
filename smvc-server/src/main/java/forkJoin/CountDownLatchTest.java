@@ -56,6 +56,7 @@ public class CountDownLatchTest {
                 //startLatch.wait();
                 System.out.println("线程" + i + "等等…………");
                 endLatch.countDown();
+                System.out.println(">>>>");
             } catch (Exception e) {
                 //e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }

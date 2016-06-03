@@ -21,7 +21,15 @@ public class ThreadTestOne implements Runnable {
     public void addObject2(int val) throws InterruptedException {
         synchronized (this) {
             this.count += val;
-            System.out.println("test" + count);
+            System.out.println("test2" + count);
+            Thread.sleep(1000 * 10);
+        }
+    }
+
+    public void addObject3(int val) throws InterruptedException {
+        synchronized (this) {
+            this.count += val;
+            System.out.println("test3" + count);
             Thread.sleep(1000 * 10);
         }
     }
