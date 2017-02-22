@@ -1,172 +1,112 @@
 package guava.base;
 
-
-//import com.google.common.base.Optional;
-
-import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.base.*;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
+import org.junit.Test;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by pei.xu on 2015/12/15.
  */
 public class BaseTest {
 
-
     /**
-     * null的 去除
+     * null non-null guava 测试
+     * Optional用于包含非空对象的不可变对象。 Optional对象，用于不存在值表示null。
+     * 这个类有各种实用的方法，以方便代码来处理为可用或不可用，而不是检查null值。
+     *
+     * @see http://www.cnblogs.com/peida/archive/2013/06/14/Guava_Optional.html
      */
-    public void optionalTest() {
-        /*Optional<String> opt = Optional.of("aaa");
-        System.out.print(opt.get());*/
-        Optional optional = Optional.of("bbbb");
-        System.out.println(optional.get());
+    @Test
+    public void testOptional() {
+        Integer integer1 = null;
+        Integer integer2 = new Integer(12);
+        Optional<Integer> a = Optional.fromNullable(integer1);
+        Optional<Integer> b = Optional.of(integer2);
 
-        Optional<tests1> test1 = Optional.of(new tests1());
-        System.out.println(test1.get().getName());
-    }
+        System.out.println("First parameter is present: " + a.isPresent());
 
-    public void checkParam(boolean bool, Object obj) {
+        System.out.println("Second parameter is present: " + b.isPresent());
 
-
-        //boolean 校验
-        Preconditions.checkArgument(bool);
-
-    }
-
-    /**
-     * 对象比较 排序
-     */
-    public void ObjectsTest() {
-
-        tests1 t1 = new tests1();
-
-        t1.setName("aa");
-
-        tests1 t2 = new tests1();
-
-        t2.setName("aa");
-
-        System.out.println(t1.equals(t2));
-
-        System.out.println(Objects.equal(t1, t2));
-
-
+        integer1 = a.or(new Integer(0));
+        integer2 = b.get();
+        System.out.println(integer1 + integer1);
     }
 
     /**
-     * 集合排序
+     * 用于替换模式数据处理
+     * 大小写转换
      */
-    public void orderSortTest() {
-
-        //排序器创建 只是用用设置 排序的规则 实际 排序还需要调用 collections 的 sort 方法
-        Ordering<?> ordering = new Ordering<Object>() {
-            @Override
-            public int compare(Object left, Object right) {
-                return 0;
-            }
-        };
-
-        Ordering ordering1 = Ordering.natural();
-
-        Ordering<String> ordering2 = Ordering.from(new Comparator<String>() {
-            @Override
-            public int compare(String o1, String o2) {
-                return Ints.compare(o1.length(), o2.length());
-            }
-        });
-
-        List<String> sortList = Lists.newArrayList(new String[]{"aaa", "ddd", "cccc", "eewew", "sfff"});
-
-        System.out.println(sortList);
-
-        Collections.sort(sortList, ordering1);
-
-        System.out.println("sort:" + sortList);
+    @Test
+    public void testAscii() {
+        System.out.println("大写转小写:" + Ascii.toLowerCase("C"));
+        System.out.println("小写转大写:" + Ascii.toUpperCase("d"));
+        System.out.println(Ascii.toLowerCase("你好"));
     }
-
 
     /**
-     * throw 延续
+     * 提供不同的ASCII字符格式之间的转换
      */
-    public void throwTest() {
-
-        try {
-
-        } catch (Exception e) {
-            Throwables.propagate(e);
-        }
+    @Test
+    public void testCaseFormat() {
+        System.out.println(CaseFormat.LOWER_HYPHEN.to(CaseFormat.LOWER_CAMEL, "test-data"));
+        System.out.println(CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, "test_data"));
+        System.out.println(CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, "test_data"));
     }
-
 
     /**
-     * 不可变集合测试
+     * CharMatcher 字符串的替换
+     *
+     * @see http://www.yiibai.com/guava/guava_charmatcher.html
      */
-    public void immutableTest() {
-        ImmutableMap<String, tests1> immutableMap= ImmutableMap.of("aa", new tests1());
+    @Test
+    public void testCharMatcher() {
+
+        //返回满足相应条件的数据
+        System.out.println(CharMatcher.ascii().and(CharMatcher.digit()).retainFrom("年后asdfsdf adsfa asd33234@df "));
+
+        //返回不满足相应条件的数据
+        System.out.println(CharMatcher.ascii().removeFrom("31432 DDDD 嗯呢"));
     }
 
-    public static void main(String[] args) {
-//        new BaseTest().optionalTest();
-//        new BaseTest().ObjectsTest();
-        new BaseTest().orderSortTest();
+    /**
+     * 数据类型转换
+     */
+    @Test
+    public void testConverter() {
+        System.out.println(Ints.stringConverter().convert("11"));
+        final BiMap<Integer, String> map = HashBiMap.create();
+        map.put(1, "a");
+        map.put(2, "b");
+        System.out.println(map);
+        System.out.println(map.inverse());
     }
 
-    class tests1 implements Comparable<tests1> {
-        private String name;
+    /**
+     * 比较任何两个对象是否相等
+     *
+     * @Test public void testEquivalence(){
+     * Integer a= new Integer(130);
+     * Integer b= new Integer(131);
+     * <p>
+     * }
+     */
+    @Test
+    public void testJoiner() {
+        List<Integer> list = Lists.newArrayList(1, 2, 3, 4);
+        StringBuilder sb = new StringBuilder("");
+        System.out.println(Joiner.on("-").appendTo(sb, list));
+        System.out.println(Joiner.on(":").join(list));
+    }
 
-        private String password;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof tests1)) return false;
-
-            tests1 tests1 = (tests1) o;
-
-            if (name != null ? !name.equals(tests1.name) : tests1.name != null) return false;
-            if (password != null ? !password.equals(tests1.password) : tests1.password != null) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = name != null ? name.hashCode() : 0;
-            result = 31 * result + (password != null ? password.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public int compareTo(tests1 o) {
-            return ComparisonChain.start().compare(this.getName(), o.getName()).compare(this.getPassword(), o.getPassword()).result();
-        }
+    @Test
+    public void testMoreObjects() {
+        //String str = MoreObjects.toStringHelper(UserPojo.class);
+        //System.out.println(str);
     }
 
 }
